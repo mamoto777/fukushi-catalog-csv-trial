@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="手すり・スロープ・段差">
+  <rect width="120" height="120" rx="16" fill="#ffedd5"/>
+  <path d="M20 96 h20 v-16 h20 v-16 h20 v-16 h20" fill="none" stroke="#7c2d12" stroke-width="7" stroke-linejoin="round"/>
+  <line x1="24" y1="70" x2="96" y2="22" stroke="#7c2d12" stroke-width="7" stroke-linecap="round"/>
+  <line x1="30" y1="92" x2="30" y2="70" stroke="#7c2d12" stroke-width="6" stroke-linecap="round"/>
+  <line x1="90" y1="52" x2="90" y2="28" stroke="#7c2d12" stroke-width="6" stroke-linecap="round"/>
+</svg>

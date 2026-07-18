@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="見守り・生活サポート">
+  <rect width="120" height="120" rx="16" fill="#fee2e2"/>
+  <path d="M60 26 q-22 0 -22 24 v18 l-8 12 h60 l-8 -12 v-18 q0 -24 -22 -24 z" fill="none" stroke="#7f1d1d" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M52 88 q8 8 16 0" fill="none" stroke="#7f1d1d" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="60" cy="20" r="5" fill="#7f1d1d"/>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="トイレ・排泄">
+  <rect width="120" height="120" rx="16" fill="#ede9fe"/>
+  <path d="M40 24 h24 v34 h-24 z" fill="none" stroke="#4c1d95" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M32 58 h56 q0 26 -24 28 v10 h-16 v-10 q-16 -4 -16 -28 z" fill="none" stroke="#4c1d95" stroke-width="7" stroke-linejoin="round"/>
+</svg>

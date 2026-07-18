@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="ベッド・起き上がり">
+  <rect width="120" height="120" rx="16" fill="#fef3c7"/>
+  <line x1="18" y1="40" x2="18" y2="96" stroke="#78350f" stroke-width="7" stroke-linecap="round"/>
+  <line x1="102" y1="64" x2="102" y2="96" stroke="#78350f" stroke-width="7" stroke-linecap="round"/>
+  <path d="M18 74 h84" stroke="#78350f" stroke-width="7" stroke-linecap="round"/>
+  <path d="M22 66 q10 -14 26 -8 l0 14 h-26 z" fill="#78350f"/>
+  <rect x="50" y="60" width="50" height="14" rx="6" fill="#78350f"/>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="車いす">
+  <rect width="120" height="120" rx="16" fill="#dcfce7"/>
+  <circle cx="52" cy="82" r="24" fill="none" stroke="#14532d" stroke-width="7"/>
+  <circle cx="92" cy="94" r="10" fill="none" stroke="#14532d" stroke-width="6"/>
+  <path d="M52 24 v34 h32 l10 26" fill="none" stroke="#14532d" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="52" cy="20" r="9" fill="#14532d"/>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="移乗・移動サポート">
+  <rect width="120" height="120" rx="16" fill="#e0e7ff"/>
+  <rect x="16" y="56" width="30" height="40" rx="6" fill="none" stroke="#312e81" stroke-width="7"/>
+  <rect x="74" y="56" width="30" height="40" rx="6" fill="none" stroke="#312e81" stroke-width="7"/>
+  <path d="M46 40 h22 m-8 -10 l10 10 l-10 10" fill="none" stroke="#312e81" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

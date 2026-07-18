@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="歩行補助">
+  <rect width="120" height="120" rx="16" fill="#dbeafe"/>
+  <path d="M70 26 q0 -10 -10 -10 q-10 0 -10 10" fill="none" stroke="#0b436f" stroke-width="7" stroke-linecap="round"/>
+  <line x1="70" y1="26" x2="70" y2="98" stroke="#0b436f" stroke-width="7" stroke-linecap="round"/>
+  <line x1="58" y1="98" x2="82" y2="98" stroke="#0b436f" stroke-width="7" stroke-linecap="round"/>
+</svg>
