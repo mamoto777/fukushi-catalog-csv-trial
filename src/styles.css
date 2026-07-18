@@ -491,6 +491,12 @@ body {
   z-index: 100;
 }
 
+.disclaimer-footer--custom {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  font-weight: bold;
+}
+
 /* ---------- タブレット幅(768px〜) ---------- */
 @media (min-width: 768px) {
   .genre-grid {
