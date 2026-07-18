@@ -1,16 +1,14 @@
 import { Link, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import BackButton from "../components/BackButton";
-import productsJson from "../data/products.json";
+import { useProducts } from "../data/ProductsContext";
 import { insuranceLabel, priceLabel } from "../logic/format";
-import type { Product } from "../types";
-
-const PRODUCTS = productsJson as unknown as Product[];
 
 /** 商品詳細 */
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
-  const product = PRODUCTS.find((p) => p.id === id);
+  const { products } = useProducts();
+  const product = products.find((p) => p.id === id);
 
   if (!product) {
     return (

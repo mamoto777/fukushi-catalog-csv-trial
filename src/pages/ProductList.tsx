@@ -9,12 +9,10 @@ import SortFilterBar, {
   type SortKey,
 } from "../components/SortFilterBar";
 import EmptyState from "../components/EmptyState";
-import productsJson from "../data/products.json";
+import { useProducts } from "../data/ProductsContext";
 import { matchProducts } from "../logic/matching";
 import { genreLabel } from "../data/questions";
 import type { NaviAnswers, Product, ScoredProduct } from "../types";
-
-const PRODUCTS = productsJson as unknown as Product[];
 
 function inPriceBand(price: number, band: PriceBand): boolean {
   switch (band) {
@@ -37,6 +35,7 @@ function inInsurance(product: Product, filter: InsuranceFilter): boolean {
 
 /** 商品リスト(ナビ結果/ジャンル共用) */
 export default function ProductList() {
+  const { products } = useProducts();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const genre = searchParams.get("genre");
@@ -54,11 +53,11 @@ export default function ProductList() {
       const answers = broadenRequested
         ? { ...naviAnswers, concerns: [] }
         : naviAnswers;
-      return matchProducts(PRODUCTS, answers);
+      return matchProducts(products, answers);
     }
     if (genre) {
       return {
-        items: PRODUCTS.filter((p) => p.genre === genre).map((product) => ({
+        items: products.filter((p) => p.genre === genre).map((product) => ({
           product,
           score: 0,
         })),
@@ -66,7 +65,7 @@ export default function ProductList() {
       };
     }
     return { items: [], broadened: false };
-  }, [fromNavi, naviAnswers, genre, broadenRequested]);
+  }, [products, fromNavi, naviAnswers, genre, broadenRequested]);
 
   const items = useMemo(() => {
     const filtered = base.items.filter(
