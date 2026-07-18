@@ -18,6 +18,10 @@ export default function Home() {
           <span className="home-buttons__main">ジャンルから探す</span>
           <span className="home-buttons__sub">商品の種類をえらんで探す</span>
         </BigButton>
+        <BigButton to="/import" variant="secondary">
+          <span className="home-buttons__main">自社データで試す</span>
+          <span className="home-buttons__sub">自社のCSVを読み込んでテストプレイ</span>
+        </BigButton>
       </nav>
     </main>
   );

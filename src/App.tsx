@@ -4,6 +4,7 @@ import Navi from "./pages/Navi";
 import GenreList from "./pages/GenreList";
 import ProductList from "./pages/ProductList";
 import ProductDetail from "./pages/ProductDetail";
+import ImportPage from "./pages/ImportPage";
 import DisclaimerFooter from "./components/DisclaimerFooter";
 import { ProductsProvider } from "./data/ProductsContext";
 
@@ -18,6 +19,7 @@ export default function App() {
             <Route path="/genres" element={<GenreList />} />
             <Route path="/list" element={<ProductList />} />
             <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/import" element={<ImportPage />} />
             <Route path="*" element={<Home />} />
           </Routes>
           <DisclaimerFooter />

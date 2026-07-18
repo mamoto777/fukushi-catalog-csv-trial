@@ -1,0 +1,95 @@
+import { useState } from "react";
+import type { ChangeEvent } from "react";
+import { Link } from "react-router-dom";
+import Header from "../components/Header";
+import BackButton from "../components/BackButton";
+import { useProducts } from "../data/ProductsContext";
+
+type ImportUiState =
+  | { status: "idle" }
+  | { status: "success"; count: number }
+  | { status: "error"; errors: string[] };
+
+/** CSV読み込み画面(骨組み。ファイル読み込み処理本体はタスク5で実装) */
+export default function ImportPage() {
+  const { source, fileName, resetToDemo } = useProducts();
+  const [state, setState] = useState<ImportUiState>({ status: "idle" });
+
+  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    // タスク5で csvImport.ts の importCsvFile() を呼び、結果に応じて
+    // loadCustom() またはエラー表示(setState)に振り分ける
+    setState({ status: "idle" });
+  }
+
+  return (
+    <main className="page">
+      <Header title="自社データで試す" />
+      <BackButton />
+
+      <p className="import-lead">
+        ひな形CSVに商品データを記入し、このページで読み込むと、自社商品でテストプレイができます。
+        <br />
+        読み込んだデータはこの端末のブラウザ内だけで使われ、どこにも送信・保存されません。
+      </p>
+
+      <a
+        href="./products-template.csv"
+        download
+        className="big-button big-button--secondary"
+      >
+        ひな形CSVをダウンロード
+      </a>
+
+      <label className="big-button big-button--primary import-file-label">
+        CSVファイルを選ぶ
+        <input
+          type="file"
+          accept=".csv,text/csv"
+          onChange={handleFileChange}
+          className="import-file-input"
+        />
+      </label>
+
+      {state.status === "success" && (
+        <div className="import-result import-result--success" role="status">
+          <p>{state.count}件の商品データを読み込みました</p>
+          <div className="import-result__actions">
+            <Link to="/navi" className="big-button big-button--primary">
+              困りごとから探す
+            </Link>
+            <Link to="/genres" className="big-button big-button--secondary">
+              ジャンルから探す
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {state.status === "error" && (
+        <div className="import-result import-result--error" role="alert">
+          <p>読み込めませんでした(データは変更されていません)</p>
+          <ul className="import-errors">
+            {state.errors.map((message, i) => (
+              <li key={i}>{message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {source === "custom" && (
+        <div className="import-current" role="status">
+          <p>現在のデータ: {fileName}</p>
+          <button
+            type="button"
+            className="big-button big-button--secondary"
+            onClick={resetToDemo}
+          >
+            デモデータに戻す
+          </button>
+        </div>
+      )}
+    </main>
+  );
+}
