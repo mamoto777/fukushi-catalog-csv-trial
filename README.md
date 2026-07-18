@@ -40,7 +40,7 @@ npm run preview    # 本番ビルドの確認(http://localhost:4173)
 
 商品データはCSVから変換して差し替えられます。
 
-1. `data/products-template.csv` をコピーして `data/products.csv` を作る
+1. `public/products-template.csv` をコピーして `data/products.csv` を作る
 2. Excel等で商品を入力する(UTF-8で保存)
    - 複数の値(おすすめ・タグ類)は `|` 区切り
    - 仕様(specs)は `項目名:値|項目名:値` 形式

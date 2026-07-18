@@ -4,7 +4,7 @@
  * - fetch時はcache-first(同一オリジンGETのみ)
  * - キャッシュ名にバージョンを含め、activate時に旧キャッシュを削除
  */
-const CACHE_NAME = "fukushi-navi-v1";
+const CACHE_NAME = "fukushi-navi-v2";
 
 const SHELL = [
   "./",
@@ -21,6 +21,7 @@ const SHELL = [
   "./images/genre-toilet.svg",
   "./images/genre-handrail.svg",
   "./images/genre-watch.svg",
+  "./products-template.csv",
 ];
 
 self.addEventListener("install", (event) => {
