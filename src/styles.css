@@ -497,6 +497,16 @@ body {
   font-weight: bold;
 }
 
+.import-guide-link {
+  text-align: center;
+  margin: var(--space-3) 0;
+}
+
+.import-guide-link a {
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
 /* ---------- タブレット幅(768px〜) ---------- */
 @media (min-width: 768px) {
   .genre-grid {

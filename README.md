@@ -41,6 +41,8 @@ npm run preview    # 本番ビルドの確認(http://localhost:4173)
 
 依頼元が自社の商品データをブラウザに読み込んで、そのままテストプレイできます。外部サーバーへの送信や保存は一切行わず、読み込んだデータはこの端末のブラウザ内だけで使われます。画面をリロードすると自動的に標準のデモデータへ戻ります。
 
+画面写真つきの手順は [使い方ガイド](https://mamoto777.github.io/fukushi-catalog-csv-trial/guide.html) を参照してください(アプリの「自社データで試す」画面からも開けます)。
+
 1. アプリのホーム画面で「自社データで試す」を選ぶ
 2. 「ひな形CSVをダウンロード」から `products-template.csv` を取得する
 3. Excel等で商品データを記入する(15列。タグ類は決まった語彙のみ使用可)
@@ -82,7 +84,7 @@ npm run preview    # 本番ビルドの確認(http://localhost:4173)
 
 初回のみ、GitHubリポジトリの **Settings → Pages → Source を「GitHub Actions」** に設定してください。
 
-公開URL(予定): `https://mamoto777.github.io/fukushi-catalog-csv-trial/`
+公開URL: `https://mamoto777.github.io/fukushi-catalog-csv-trial/`
 
 ## 個人情報の取り扱い
 

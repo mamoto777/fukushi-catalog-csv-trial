@@ -41,6 +41,12 @@ export default function ImportPage() {
         読み込んだデータはこの端末のブラウザ内だけで使われ、どこにも送信・保存されません。
       </p>
 
+      <p className="import-guide-link">
+        <a href="./guide.html" target="_blank" rel="noopener">
+          はじめての方へ: 使い方ガイド(画面写真つき)
+        </a>
+      </p>
+
       <a
         href="./products-template.csv"
         download
