@@ -4,24 +4,30 @@ import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import BackButton from "../components/BackButton";
 import { useProducts } from "../data/ProductsContext";
+import { importCsvFile } from "../logic/csvImport";
 
 type ImportUiState =
   | { status: "idle" }
   | { status: "success"; count: number }
   | { status: "error"; errors: string[] };
 
-/** CSV読み込み画面(骨組み。ファイル読み込み処理本体はタスク5で実装) */
+/** CSV読み込み画面 */
 export default function ImportPage() {
-  const { source, fileName, resetToDemo } = useProducts();
+  const { source, fileName, loadCustom, resetToDemo } = useProducts();
   const [state, setState] = useState<ImportUiState>({ status: "idle" });
 
-  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
-    // タスク5で csvImport.ts の importCsvFile() を呼び、結果に応じて
-    // loadCustom() またはエラー表示(setState)に振り分ける
-    setState({ status: "idle" });
+
+    const result = await importCsvFile(file);
+    if (result.ok) {
+      loadCustom(result.products, file.name);
+      setState({ status: "success", count: result.count });
+    } else {
+      setState({ status: "error", errors: result.errors });
+    }
   }
 
   return (

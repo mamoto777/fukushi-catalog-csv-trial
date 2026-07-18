@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseCsv, validateProducts } from "../src/logic/csvCore.mjs";
+import { importCsvFile } from "../src/logic/csvImport";
 
 const HEADER = [
   "id",
@@ -134,5 +135,107 @@ describe("validateProducts", () => {
     const rows = [HEADER, row];
     const result = validateProducts(rows, vocab);
     expect(result.errors).toContain('2行目: popularity "6" は1〜5の整数にしてください');
+  });
+});
+
+/**
+ * 実際の src/data/vocab.json の語彙に一致するShift_JISバイト列(Pythonの
+ * `str.encode("shift_jis")` で機械的に算出。手打ちの誤りを避けるため)。
+ */
+const SJIS_CONCERN = new Uint8Array([
+  130, 211, 130, 231, 130, 194, 130, 173, 129, 69, 147, 93, 130, 209, 130,
+  226, 130, 183, 130, 162,
+]); // "ふらつく・転びやすい"
+const SJIS_SCENE = new Uint8Array([149, 224, 130, 173, 129, 69, 136, 218, 147, 174]); // "歩く・移動"
+const SJIS_USER = new Uint8Array([150, 123, 144, 108, 130, 170, 142, 103, 130, 164]); // "本人が使う"
+
+function concatBytes(parts: (string | Uint8Array<ArrayBuffer>)[]): Uint8Array<ArrayBuffer> {
+  const encoder = new TextEncoder();
+  const chunks = parts.map((p) => (typeof p === "string" ? encoder.encode(p) : p));
+  const total = chunks.reduce((sum, c) => sum + c.length, 0);
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const c of chunks) {
+    out.set(c, offset);
+    offset += c.length;
+  }
+  return out;
+}
+
+/** Shift_JISでのみ正しく読める(UTF-8としては文字化けする)CSVファイルを1件分作る */
+function buildShiftJisCsvFile(): File {
+  const asciiRowPrefix =
+    HEADER.join(",") +
+    "\n" +
+    "p001,Item A,Maker A,walking,3000,rental,Summary,Description,weight:490g,test,Caution,";
+  const bytes = concatBytes([
+    asciiRowPrefix,
+    SJIS_CONCERN,
+    ",",
+    SJIS_SCENE,
+    ",",
+    SJIS_USER,
+    ",3\n",
+  ]);
+  return new File([bytes], "products-sjis.csv", { type: "text/csv" });
+}
+
+describe("importCsvFile", () => {
+  it("正常なUTF-8 CSVを読み込み、encoding:utf-8で商品を返す", async () => {
+    const text =
+      HEADER.join(",") + "\n" + validRow("p001").join(",") + "\n" +
+      validRow("p002").join(",") + "\n";
+    const file = new File([text], "products.csv", { type: "text/csv" });
+    const result = await importCsvFile(file);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.encoding).toBe("utf-8");
+      expect(result.count).toBe(2);
+      expect(result.products).toHaveLength(2);
+    }
+  });
+
+  it("Shift_JISエンコードのCSVをencoding:shift_jisとして読み込む", async () => {
+    const file = buildShiftJisCsvFile();
+    const result = await importCsvFile(file);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.encoding).toBe("shift_jis");
+      expect(result.count).toBe(1);
+      expect(result.products[0].concernTags).toEqual(["ふらつく・転びやすい"]);
+    }
+  });
+
+  it("ファイルサイズが10MBを超える場合はエラーになる", async () => {
+    const bigBytes = new Uint8Array(10 * 1024 * 1024 + 1).fill(0x61); // 'a'
+    const file = new File([bigBytes], "big.csv", { type: "text/csv" });
+    const result = await importCsvFile(file);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors).toEqual(["ファイルが大きすぎます(上限10MB)"]);
+    }
+  });
+
+  it("データ行が1,000行を超える場合はエラーになる(検証前に弾く)", async () => {
+    const lines = ["a,b,c"];
+    for (let i = 0; i < 1001; i++) lines.push("x,y,z");
+    const text = lines.join("\n") + "\n";
+    const file = new File([text], "toolong.csv", { type: "text/csv" });
+    const result = await importCsvFile(file);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors).toEqual(["商品データは1,000行までにしてください"]);
+    }
+  });
+
+  it("検証エラーがある場合はエラー一覧をそのまま返す", async () => {
+    const row = validRow("invalid-id");
+    const text = HEADER.join(",") + "\n" + row.join(",") + "\n";
+    const file = new File([text], "invalid.csv", { type: "text/csv" });
+    const result = await importCsvFile(file);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors[0]).toContain("は p001 形式ではありません");
+    }
   });
 });
