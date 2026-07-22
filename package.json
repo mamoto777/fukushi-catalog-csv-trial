@@ -11,14 +11,17 @@
     "data:convert": "node scripts/csv2json.mjs"
   },
   "dependencies": {
+    "fflate": "^0.8.3",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
+    "@types/node": "^26.1.1",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.3",
+    "jsdom": "^29.1.1",
     "typescript": "^5.9.2",
     "vite": "^8.1.4",
     "vitest": "^4.1.10"

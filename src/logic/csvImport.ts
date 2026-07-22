@@ -6,7 +6,12 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB(グローバル方針のデフ�
 const MAX_DATA_ROWS = 1000; // マッチング・描画の性能保証範囲
 
 export type ImportResult =
-  | { ok: true; products: Product[]; count: number; encoding: "utf-8" | "shift_jis" }
+  | {
+      ok: true;
+      products: Product[];
+      count: number;
+      encoding: "utf-8" | "shift_jis" | "xlsx";
+    }
   | { ok: false; errors: string[] };
 
 function hasReplacementChar(text: string): boolean {

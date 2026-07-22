@@ -507,6 +507,24 @@ body {
   font-weight: bold;
 }
 
+.import-advanced {
+  margin: var(--space-3) 0;
+}
+
+.import-advanced summary {
+  cursor: pointer;
+  padding: var(--space-2) 0;
+  color: var(--color-primary);
+  font-weight: bold;
+  min-height: var(--tap-min, 48px);
+  display: flex;
+  align-items: center;
+}
+
+.import-advanced .big-button {
+  margin-top: var(--space-2);
+}
+
 /* ---------- タブレット幅(768px〜) ---------- */
 @media (min-width: 768px) {
   .genre-grid {

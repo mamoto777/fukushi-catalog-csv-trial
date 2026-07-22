@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import BackButton from "../components/BackButton";
 import { useProducts } from "../data/ProductsContext";
 import { importCsvFile } from "../logic/csvImport";
+import { importXlsxFile } from "../logic/xlsxImport";
 
 type ImportUiState =
   | { status: "idle" }
@@ -21,7 +22,21 @@ export default function ImportPage() {
     e.target.value = "";
     if (!file) return;
 
-    const result = await importCsvFile(file);
+    const lowerName = file.name.toLowerCase();
+    let result;
+    if (lowerName.endsWith(".xlsx")) {
+      result = await importXlsxFile(file);
+    } else if (lowerName.endsWith(".xls")) {
+      result = {
+        ok: false as const,
+        errors: [
+          "古いExcel形式(.xls)には対応していません。かんたん版ひな形(.xlsx)をお使いください",
+        ],
+      };
+    } else {
+      result = await importCsvFile(file);
+    }
+
     if (result.ok) {
       loadCustom(result.products, file.name);
       setState({ status: "success", count: result.count });
@@ -36,7 +51,7 @@ export default function ImportPage() {
       <BackButton />
 
       <p className="import-lead">
-        ひな形CSVに商品データを記入し、このページで読み込むと、自社商品でテストプレイができます。
+        ひな形に商品データを記入し、このページで読み込むと、自社商品でテストプレイができます。
         <br />
         読み込んだデータはこの端末のブラウザ内だけで使われ、どこにも送信・保存されません。
       </p>
@@ -48,22 +63,33 @@ export default function ImportPage() {
       </p>
 
       <a
-        href="./products-template.csv"
-        download
-        className="big-button big-button--secondary"
+        href="./products-template-simple.xlsx"
+        download="商品リストかんたん版.xlsx"
+        className="big-button big-button--primary"
       >
-        ひな形CSVをダウンロード
+        かんたん版ひな形(Excel)をダウンロード
       </a>
 
       <label className="big-button big-button--primary import-file-label">
-        CSVファイルを選ぶ
+        記入したファイルを選ぶ(Excel / CSV)
         <input
           type="file"
-          accept=".csv,text/csv"
+          accept=".xlsx,.csv,text/csv"
           onChange={handleFileChange}
           className="import-file-input"
         />
       </label>
+
+      <details className="import-advanced">
+        <summary>詳しく登録したい方(15項目CSV)</summary>
+        <a
+          href="./products-template.csv"
+          download
+          className="big-button big-button--secondary"
+        >
+          ひな形CSVをダウンロード
+        </a>
+      </details>
 
       {state.status === "success" && (
         <div className="import-result import-result--success" role="status">
