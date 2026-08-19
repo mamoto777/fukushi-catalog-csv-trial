@@ -1,6 +1,6 @@
 import { parseCsv, validateProducts } from "./csvCore.mjs";
-import vocabJson from "../data/vocab.json";
 import type { Product } from "../types";
+import type { Vocab } from "./csvCore.mjs";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB(グローバル方針のデフォルト上限)
 const MAX_DATA_ROWS = 1000; // マッチング・描画の性能保証範囲
@@ -11,6 +11,7 @@ export type ImportResult =
       products: Product[];
       count: number;
       encoding: "utf-8" | "shift_jis" | "xlsx";
+      vocab: Vocab | null; // xlsx取り込み時=新しい語彙 / CSV取り込み時=null(現在の語彙を維持)
     }
   | { ok: false; errors: string[] };
 
@@ -18,7 +19,10 @@ function hasReplacementChar(text: string): boolean {
   return text.includes("�");
 }
 
-export async function importCsvFile(file: File): Promise<ImportResult> {
+export async function importCsvFile(
+  file: File,
+  vocab: Vocab,
+): Promise<ImportResult> {
   if (file.size > MAX_FILE_SIZE) {
     return { ok: false, errors: ["ファイルが大きすぎます(上限10MB)"] };
   }
@@ -57,10 +61,10 @@ export async function importCsvFile(file: File): Promise<ImportResult> {
     return { ok: false, errors: ["商品データは1,000行までにしてください"] };
   }
 
-  const { products, errors } = validateProducts(rows, vocabJson);
+  const { products, errors } = validateProducts(rows, vocab);
   if (errors.length > 0) {
     return { ok: false, errors };
   }
 
-  return { ok: true, products, count: products.length, encoding };
+  return { ok: true, products, count: products.length, encoding, vocab: null };
 }

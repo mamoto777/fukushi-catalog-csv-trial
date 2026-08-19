@@ -6,6 +6,7 @@ const HEADER = [
   "id",
   "name",
   "maker",
+  "taisCode",
   "genre",
   "price",
   "insurance",
@@ -34,6 +35,7 @@ function validRow(id: string): string[] {
     id,
     "杖A",
     "メーカーA",
+    "01234-000099",
     "walking",
     "3000",
     "rental",
@@ -78,6 +80,16 @@ describe("validateProducts", () => {
     expect(result.products).toHaveLength(3);
     expect(result.products[0].id).toBe("p001");
     expect(result.products[0].genreLabel).toBe("歩行補助");
+    expect(result.products[0].taisCode).toBe("01234-000099");
+  });
+
+  it("taisCodeが空文字の行もエラーにならず空文字のまま格納される", () => {
+    const row = validRow("p001");
+    row[3] = ""; // taisCode
+    const rows = [HEADER, row];
+    const result = validateProducts(rows, vocab);
+    expect(result.errors).toEqual([]);
+    expect(result.products[0].taisCode).toBe("");
   });
 
   it("ヘッダ行が想定と一致しない場合、products空+エラー1件を返す", () => {
@@ -96,7 +108,7 @@ describe("validateProducts", () => {
     const rows = [HEADER, shortRow];
     const result = validateProducts(rows, vocab);
     expect(result.products).toEqual([]);
-    expect(result.errors).toEqual(["2行目: 列数が14です(15列必要)"]);
+    expect(result.errors).toEqual(["2行目: 列数が15です(16列必要)"]);
   });
 
   it("id形式が不正な場合エラーになる", () => {
@@ -113,7 +125,7 @@ describe("validateProducts", () => {
 
   it("語彙(vocab.json)にないタグはエラーになる", () => {
     const row = validRow("p001");
-    row[11] = "語彙にない困りごと"; // concernTags
+    row[12] = "語彙にない困りごと"; // concernTags
     const rows = [HEADER, row];
     const result = validateProducts(rows, vocab);
     expect(result.errors).toContain(
@@ -123,7 +135,7 @@ describe("validateProducts", () => {
 
   it("priceが正の整数でない場合エラーになる", () => {
     const row = validRow("p001");
-    row[4] = "-100"; // price
+    row[5] = "-100"; // price
     const rows = [HEADER, row];
     const result = validateProducts(rows, vocab);
     expect(result.errors).toContain('2行目: price "-100" は正の整数ではありません');
@@ -131,7 +143,7 @@ describe("validateProducts", () => {
 
   it("popularityが1〜5の範囲外の場合エラーになる", () => {
     const row = validRow("p001");
-    row[14] = "6"; // popularity
+    row[15] = "6"; // popularity
     const rows = [HEADER, row];
     const result = validateProducts(rows, vocab);
     expect(result.errors).toContain('2行目: popularity "6" は1〜5の整数にしてください');
@@ -167,7 +179,7 @@ function buildShiftJisCsvFile(): File {
   const asciiRowPrefix =
     HEADER.join(",") +
     "\n" +
-    "p001,Item A,Maker A,walking,3000,rental,Summary,Description,weight:490g,test,Caution,";
+    "p001,Item A,Maker A,,walking,3000,rental,Summary,Description,weight:490g,test,Caution,";
   const bytes = concatBytes([
     asciiRowPrefix,
     SJIS_CONCERN,
@@ -186,18 +198,19 @@ describe("importCsvFile", () => {
       HEADER.join(",") + "\n" + validRow("p001").join(",") + "\n" +
       validRow("p002").join(",") + "\n";
     const file = new File([text], "products.csv", { type: "text/csv" });
-    const result = await importCsvFile(file);
+    const result = await importCsvFile(file, vocab);
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.encoding).toBe("utf-8");
       expect(result.count).toBe(2);
       expect(result.products).toHaveLength(2);
+      expect(result.vocab).toBeNull();
     }
   });
 
   it("Shift_JISエンコードのCSVをencoding:shift_jisとして読み込む", async () => {
     const file = buildShiftJisCsvFile();
-    const result = await importCsvFile(file);
+    const result = await importCsvFile(file, vocab);
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.encoding).toBe("shift_jis");
@@ -209,7 +222,7 @@ describe("importCsvFile", () => {
   it("ファイルサイズが10MBを超える場合はエラーになる", async () => {
     const bigBytes = new Uint8Array(10 * 1024 * 1024 + 1).fill(0x61); // 'a'
     const file = new File([bigBytes], "big.csv", { type: "text/csv" });
-    const result = await importCsvFile(file);
+    const result = await importCsvFile(file, vocab);
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.errors).toEqual(["ファイルが大きすぎます(上限10MB)"]);
@@ -221,7 +234,7 @@ describe("importCsvFile", () => {
     for (let i = 0; i < 1001; i++) lines.push("x,y,z");
     const text = lines.join("\n") + "\n";
     const file = new File([text], "toolong.csv", { type: "text/csv" });
-    const result = await importCsvFile(file);
+    const result = await importCsvFile(file, vocab);
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.errors).toEqual(["商品データは1,000行までにしてください"]);
@@ -232,7 +245,7 @@ describe("importCsvFile", () => {
     const row = validRow("invalid-id");
     const text = HEADER.join(",") + "\n" + row.join(",") + "\n";
     const file = new File([text], "invalid.csv", { type: "text/csv" });
-    const result = await importCsvFile(file);
+    const result = await importCsvFile(file, vocab);
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.errors[0]).toContain("は p001 形式ではありません");

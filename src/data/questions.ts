@@ -9,11 +9,10 @@ export interface SceneOption {
   label: string;
   concerns: string[];
 }
-export const SCENE_OPTIONS: SceneOption[] = vocab.scenes;
 
-/** 質問3の選択肢(質問2の回答に応じて動的表示、最大3つ複数選択) */
-export function concernsForScene(scene: string): string[] {
-  return SCENE_OPTIONS.find((s) => s.label === scene)?.concerns ?? [];
+/** 質問3の選択肢(質問2の回答に応じて動的表示、最大3つ複数選択)。第1引数=現在有効な語彙のscenes */
+export function concernsForScene(scenes: SceneOption[], scene: string): string[] {
+  return scenes.find((s) => s.label === scene)?.concerns ?? [];
 }
 
 /** 質問3で選択できる最大数 */

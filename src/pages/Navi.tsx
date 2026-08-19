@@ -3,17 +3,14 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import BackButton from "../components/BackButton";
 import BigButton from "../components/BigButton";
-import {
-  USER_OPTIONS,
-  SCENE_OPTIONS,
-  concernsForScene,
-  MAX_CONCERNS,
-} from "../data/questions";
+import { USER_OPTIONS, concernsForScene, MAX_CONCERNS } from "../data/questions";
+import { useProducts } from "../data/ProductsContext";
 import type { NaviAnswers } from "../types";
 
 /** 困りごとナビ(3問・1問1画面。回答はメモリ上のみで保存しない) */
 export default function Navi() {
   const navigate = useNavigate();
+  const { vocab } = useProducts();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [user, setUser] = useState<string | null>(null);
   const [scene, setScene] = useState<string | null>(null);
@@ -75,7 +72,7 @@ export default function Navi() {
             どの場面で困っていますか?
           </h2>
           <div className="navi-options">
-            {SCENE_OPTIONS.map((s) => (
+            {vocab.scenes.map((s) => (
               <BigButton
                 key={s.label}
                 onClick={() => {
@@ -98,7 +95,7 @@ export default function Navi() {
           </h2>
           <p className="navi-hint">あてはまるものをえらんでください(最大{MAX_CONCERNS}つ)</p>
           <div className="navi-options">
-            {concernsForScene(scene).map((c) => {
+            {concernsForScene(vocab.scenes, scene).map((c) => {
               const selected = concerns.includes(c);
               return (
                 <BigButton

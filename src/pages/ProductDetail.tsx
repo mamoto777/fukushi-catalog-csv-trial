@@ -1,14 +1,18 @@
 import { Link, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import BackButton from "../components/BackButton";
+import ProductCard from "../components/ProductCard";
 import { useProducts } from "../data/ProductsContext";
 import { insuranceLabel, priceLabel } from "../logic/format";
+import { similarProducts } from "../logic/similar";
 
 /** 商品詳細 */
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const { products } = useProducts();
   const product = products.find((p) => p.id === id);
+
+  const similar = product ? similarProducts(product, products) : [];
 
   if (!product) {
     return (
@@ -41,6 +45,9 @@ export default function ProductDetail() {
         <p className="product-detail__genre">{product.genreLabel}</p>
         <h2 className="product-detail__name">{product.name}</h2>
         <p className="product-detail__maker">{product.maker}</p>
+        {product.taisCode && (
+          <p className="product-detail__tais">TAISコード: {product.taisCode}</p>
+        )}
 
         <section className="product-detail__price-box" aria-label="価格">
           <p className="product-detail__price">{priceLabel(product)}</p>
@@ -82,6 +89,17 @@ export default function ProductDetail() {
           <h3 id="detail-caution">注意点</h3>
           <p className="product-detail__caution">{product.caution}</p>
         </section>
+
+        {similar.length > 0 && (
+          <section aria-labelledby="detail-similar">
+            <h3 id="detail-similar">似ている商品</h3>
+            <ul className="product-list">
+              {similar.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </ul>
+          </section>
+        )}
       </article>
     </main>
   );

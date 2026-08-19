@@ -1,5 +1,5 @@
 /*
- * .xlsx(zip+XML)を string[][] に変換する共通コア。設計書 docs/design-かんたん版.md §6-1
+ * .xlsx(zip+XML)を string[][] に変換する共通コア。設計書 docs/design.md §5-4
  * fflateでzip展開し、XML解釈はブラウザ標準の DOMParser で行う(追加依存最小化)。
  */
 import { unzipSync } from "fflate";
@@ -8,14 +8,20 @@ const NS_RELS =
   "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 const MAX_ENTRY_SIZE = 30 * 1024 * 1024; // 30MB(zip爆弾対策)
 const MAX_DATA_ROWS = 1000;
+const SCENE_SHEET_NAME = "シーン設定";
 
 export type XlsxParseResult =
-  | { ok: true; rows: string[][] }
+  | {
+      ok: true;
+      productRows: string[][]; // 商品リストシート。各行10列にパディング
+      sceneRows: string[][] | null; // シーン設定シート。各行2列にパディング。シート不在時=null
+    }
   | { ok: false; error: string };
 
 const FORMAT_ERROR =
   "Excelファイルを読み取れませんでした。かんたん版ひな形(.xlsx)をそのまま使って保存してください";
-const ROW_LIMIT_ERROR = "商品データは1,000行までにしてください";
+const PRODUCT_ROW_LIMIT_ERROR = "商品データは1,000行までにしてください";
+const SCENE_ROW_LIMIT_ERROR = "シーン設定シートは1,000行までにしてください";
 
 function colLettersToIndex(letters: string): number {
   let n = 0;
@@ -57,24 +63,7 @@ function parseSharedStrings(xml: string | undefined): string[] {
   return siList.map((si) => textFromElement(si));
 }
 
-function findVisibleSheetTarget(
-  workbookXml: string,
-  relsXml: string | undefined,
-): string | null {
-  const wbDoc = new DOMParser().parseFromString(workbookXml, "text/xml");
-  if (wbDoc.getElementsByTagName("parsererror").length > 0) return null;
-
-  const sheets = Array.from(wbDoc.getElementsByTagNameNS("*", "sheet"));
-  const visible = sheets.find((s) => {
-    const state = s.getAttribute("state");
-    return !state || state === "visible";
-  });
-  if (!visible) return null;
-
-  let rId = visible.getAttribute("r:id");
-  if (!rId) rId = visible.getAttributeNS(NS_RELS, "id");
-  if (!rId) return null;
-
+function resolveRelsTarget(rId: string, relsXml: string | undefined): string | null {
   if (!relsXml) return null;
   const relsDoc = new DOMParser().parseFromString(relsXml, "text/xml");
   if (relsDoc.getElementsByTagName("parsererror").length > 0) return null;
@@ -89,6 +78,54 @@ function findVisibleSheetTarget(
   return `xl/${target}`;
 }
 
+interface SheetTargets {
+  productTarget: string | null;
+  /** シーン設定シートが見つからなかった場合はnull(エラーではない)。見つかったがTarget解決不可はundefined(FORMAT_ERROR) */
+  sceneTarget: string | null | undefined;
+}
+
+/**
+ * workbook.xmlのsheet要素を文書順に走査し、商品リストシートとシーン設定シートを特定する。
+ * - 商品リストシート = state属性が無いか"visible"、かつname属性が"シーン設定"でない最初のシート
+ * - シーン設定シート = name属性が"シーン設定"と完全一致する最初のシート(表示状態は不問)
+ */
+function findSheetTargets(
+  workbookXml: string,
+  relsXml: string | undefined,
+): SheetTargets | null {
+  const wbDoc = new DOMParser().parseFromString(workbookXml, "text/xml");
+  if (wbDoc.getElementsByTagName("parsererror").length > 0) return null;
+
+  const sheets = Array.from(wbDoc.getElementsByTagNameNS("*", "sheet"));
+
+  const getTarget = (sheetEl: Element): string | null => {
+    let rId = sheetEl.getAttribute("r:id");
+    if (!rId) rId = sheetEl.getAttributeNS(NS_RELS, "id");
+    if (!rId) return null;
+    return resolveRelsTarget(rId, relsXml);
+  };
+
+  const productSheet = sheets.find((s) => {
+    const state = s.getAttribute("state");
+    const isVisible = !state || state === "visible";
+    const name = s.getAttribute("name");
+    return isVisible && name !== SCENE_SHEET_NAME;
+  });
+  const productTarget = productSheet ? getTarget(productSheet) : null;
+  if (!productSheet || !productTarget) {
+    return { productTarget: null, sceneTarget: null };
+  }
+
+  const sceneSheet = sheets.find((s) => s.getAttribute("name") === SCENE_SHEET_NAME);
+  let sceneTarget: string | null | undefined = null;
+  if (sceneSheet) {
+    const target = getTarget(sceneSheet);
+    sceneTarget = target ?? undefined; // 見つかったがTarget解決不可はundefined
+  }
+
+  return { productTarget, sceneTarget };
+}
+
 type SheetParseResult =
   | { ok: true; rows: string[][] }
   | { ok: false; reason: "parse" | "rowLimit" };
@@ -96,6 +133,8 @@ type SheetParseResult =
 function parseSheetToRows(
   sheetXml: string,
   sharedStrings: string[],
+  colCount: number,
+  maxDataRows: number,
 ): SheetParseResult {
   const doc = new DOMParser().parseFromString(sheetXml, "text/xml");
   if (doc.getElementsByTagName("parsererror").length > 0) {
@@ -143,15 +182,15 @@ function parseSheetToRows(
     if (hasValue && rowNumber > maxDataRowNumber) maxDataRowNumber = rowNumber;
   }
 
-  if (maxDataRowNumber > MAX_DATA_ROWS + 1) {
+  if (maxDataRowNumber > maxDataRows + 1) {
     return { ok: false, reason: "rowLimit" };
   }
 
   const rows: string[][] = [];
   for (let i = 1; i <= maxDataRowNumber; i++) {
     const raw = rowsByNumber.get(i) ?? [];
-    const padded = raw.slice(0, 7);
-    while (padded.length < 7) padded.push("");
+    const padded = raw.slice(0, colCount);
+    while (padded.length < colCount) padded.push("");
     rows.push(padded);
   }
 
@@ -186,21 +225,41 @@ export function parseXlsxToRows(buf: ArrayBuffer): XlsxParseResult {
     ? decoder.decode(files["xl/sharedStrings.xml"])
     : undefined;
 
-  const sheetTarget = findVisibleSheetTarget(workbookXml, relsXml);
-  if (!sheetTarget || !files[sheetTarget]) {
+  const targets = findSheetTargets(workbookXml, relsXml);
+  if (!targets || !targets.productTarget || !files[targets.productTarget]) {
+    return { ok: false, error: FORMAT_ERROR };
+  }
+  // シーン設定シートが見つかったがTarget解決不可、またはファイル欠落
+  if (targets.sceneTarget === undefined) {
+    return { ok: false, error: FORMAT_ERROR };
+  }
+  if (targets.sceneTarget !== null && !files[targets.sceneTarget]) {
     return { ok: false, error: FORMAT_ERROR };
   }
 
   const sharedStrings = parseSharedStrings(sharedStringsXml);
-  const sheetXml = decoder.decode(files[sheetTarget]);
-  const result = parseSheetToRows(sheetXml, sharedStrings);
 
-  if (!result.ok) {
+  const productSheetXml = decoder.decode(files[targets.productTarget]);
+  const productResult = parseSheetToRows(productSheetXml, sharedStrings, 10, MAX_DATA_ROWS);
+  if (!productResult.ok) {
     return {
       ok: false,
-      error: result.reason === "rowLimit" ? ROW_LIMIT_ERROR : FORMAT_ERROR,
+      error: productResult.reason === "rowLimit" ? PRODUCT_ROW_LIMIT_ERROR : FORMAT_ERROR,
     };
   }
 
-  return { ok: true, rows: result.rows };
+  let sceneRows: string[][] | null = null;
+  if (targets.sceneTarget !== null) {
+    const sceneSheetXml = decoder.decode(files[targets.sceneTarget]);
+    const sceneResult = parseSheetToRows(sceneSheetXml, sharedStrings, 2, MAX_DATA_ROWS);
+    if (!sceneResult.ok) {
+      return {
+        ok: false,
+        error: sceneResult.reason === "rowLimit" ? SCENE_ROW_LIMIT_ERROR : FORMAT_ERROR,
+      };
+    }
+    sceneRows = sceneResult.rows;
+  }
+
+  return { ok: true, productRows: productResult.rows, sceneRows };
 }

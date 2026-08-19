@@ -18,9 +18,13 @@ export default function Home() {
           <span className="home-buttons__main">ジャンルから探す</span>
           <span className="home-buttons__sub">商品の種類をえらんで探す</span>
         </BigButton>
+        <BigButton to="/search" variant="secondary">
+          <span className="home-buttons__main">商品名からさがす</span>
+          <span className="home-buttons__sub">商品名・メーカー・TAISコードで検索</span>
+        </BigButton>
         <BigButton to="/import" variant="secondary">
-          <span className="home-buttons__main">自社データで試す</span>
-          <span className="home-buttons__sub">自社のCSVを読み込んでテストプレイ</span>
+          <span className="home-buttons__main">商品データを読み込む</span>
+          <span className="home-buttons__sub">自分の商品リスト(Excel/CSV)に入れ替える</span>
         </BigButton>
       </nav>
     </main>

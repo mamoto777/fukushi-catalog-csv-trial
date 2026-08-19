@@ -4,7 +4,7 @@
  * - fetch時はcache-first(同一オリジンGETのみ)
  * - キャッシュ名にバージョンを含め、activate時に旧キャッシュを削除
  */
-const CACHE_NAME = "fukushi-navi-v3";
+const CACHE_NAME = "fukushi-navi-v4";
 
 const SHELL = [
   "./",

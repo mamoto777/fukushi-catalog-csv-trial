@@ -9,9 +9,13 @@ interface Props {
   onPriceBandChange: (v: PriceBand) => void;
   insurance: InsuranceFilter;
   onInsuranceChange: (v: InsuranceFilter) => void;
+  /** 場面絞り込み。sceneOptions を渡したときだけ「場面」selectを表示する */
+  sceneOptions?: string[];
+  scene?: string; // "all" またはシーンlabel
+  onSceneChange?: (v: string) => void;
 }
 
-/** 並べ替え・絞り込みUI(設計書§5-5) */
+/** 並べ替え・絞り込みUI(設計書§5-5・§5-9) */
 export default function SortFilterBar({
   sort,
   onSortChange,
@@ -19,9 +23,28 @@ export default function SortFilterBar({
   onPriceBandChange,
   insurance,
   onInsuranceChange,
+  sceneOptions,
+  scene,
+  onSceneChange,
 }: Props) {
   return (
     <div className="sort-filter-bar">
+      {sceneOptions && (
+        <label className="sort-filter-bar__item">
+          <span>場面</span>
+          <select
+            value={scene}
+            onChange={(e) => onSceneChange?.(e.target.value)}
+          >
+            <option value="all">すべて</option>
+            {sceneOptions.map((label) => (
+              <option key={label} value={label}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <label className="sort-filter-bar__item">
         <span>並べ替え</span>
         <select

@@ -1,8 +1,9 @@
 /*
- * .xlsxファイルの取り込み口。設計書 docs/design-かんたん版.md §6-3
+ * .xlsxファイルの取り込み口(v2)。設計書 docs/design.md §5-5
  */
 import { parseXlsxToRows } from "./xlsxCore";
 import { validateSimpleRows } from "./simpleCore";
+import { buildScenesFromRows } from "./sceneCore";
 import vocabJson from "../data/vocab.json";
 import type { ImportResult } from "./csvImport";
 import type { Vocab } from "./csvCore.mjs";
@@ -20,13 +21,30 @@ export async function importXlsxFile(file: File): Promise<ImportResult> {
     return { ok: false, errors: [parsed.error] };
   }
 
-  const { products, errors } = validateSimpleRows(
-    parsed.rows,
-    vocabJson as Vocab,
-  );
+  if (parsed.sceneRows === null) {
+    return {
+      ok: false,
+      errors: [
+        "シーン設定シートが見つかりません。ひな形が古い形式の可能性があります。アプリから新しいひな形(Excel)をダウンロードしてお使いください",
+      ],
+    };
+  }
+
+  const { scenes, errors: sceneErrors } = buildScenesFromRows(parsed.sceneRows);
+  if (sceneErrors.length > 0) {
+    return { ok: false, errors: sceneErrors };
+  }
+
+  const vocab: Vocab = {
+    users: (vocabJson as Vocab).users,
+    genres: (vocabJson as Vocab).genres,
+    scenes,
+  };
+
+  const { products, errors } = validateSimpleRows(parsed.productRows, vocab);
   if (errors.length > 0) {
     return { ok: false, errors };
   }
 
-  return { ok: true, products, count: products.length, encoding: "xlsx" };
+  return { ok: true, products, count: products.length, encoding: "xlsx", vocab };
 }

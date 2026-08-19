@@ -358,6 +358,24 @@ body {
   color: var(--color-text-sub);
 }
 
+/* ---------- 商品名からさがす ---------- */
+.search-input {
+  display: block;
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-2);
+  margin-bottom: var(--space-3);
+  font-size: 16px;
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+}
+
+.search-hint {
+  color: var(--color-text-sub);
+}
+
 /* ---------- 該当0件 ---------- */
 .empty-state {
   display: flex;
@@ -402,6 +420,12 @@ body {
 .product-detail__maker {
   margin: 0;
   font-size: 16px;
+  color: var(--color-text-sub);
+}
+
+.product-detail__tais {
+  margin: 2px 0 0;
+  font-size: 14px;
   color: var(--color-text-sub);
 }
 
@@ -523,6 +547,15 @@ body {
 
 .import-advanced .big-button {
   margin-top: var(--space-2);
+}
+
+.import-save-warning {
+  font-weight: bold;
+  color: var(--color-warning-text);
+  background: var(--color-warning-bg);
+  border-radius: 8px;
+  padding: var(--space-1) var(--space-2);
+  margin: var(--space-2) 0 0;
 }
 
 /* ---------- タブレット幅(768px〜) ---------- */

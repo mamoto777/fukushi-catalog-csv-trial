@@ -19,6 +19,7 @@ export interface Product {
   id: string; // "p001"〜"p100"
   name: string; // 商品名(架空)
   maker: string; // メーカー名(架空)
+  taisCode?: string; // TAISコード(任意・自由記述。空文字または未定義=なし。デモ100商品は未定義)
   genre: GenreId;
   genreLabel: string; // 表示用ジャンル名
   price: number; // rental: 月額レンタル価格(10割) / purchase・none: 販売価格(税込)

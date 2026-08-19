@@ -9,12 +9,12 @@ import { importXlsxFile } from "../logic/xlsxImport";
 
 type ImportUiState =
   | { status: "idle" }
-  | { status: "success"; count: number }
+  | { status: "success"; count: number; saved: boolean }
   | { status: "error"; errors: string[] };
 
-/** CSV読み込み画面 */
+/** 商品データ読み込み画面 */
 export default function ImportPage() {
-  const { source, fileName, loadCustom, resetToDemo } = useProducts();
+  const { source, vocab, fileName, loadCustom, resetToDemo } = useProducts();
   const [state, setState] = useState<ImportUiState>({ status: "idle" });
 
   async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
@@ -34,12 +34,12 @@ export default function ImportPage() {
         ],
       };
     } else {
-      result = await importCsvFile(file);
+      result = await importCsvFile(file, vocab);
     }
 
     if (result.ok) {
-      loadCustom(result.products, file.name);
-      setState({ status: "success", count: result.count });
+      const saved = loadCustom(result.products, result.vocab, file.name);
+      setState({ status: "success", count: result.count, saved });
     } else {
       setState({ status: "error", errors: result.errors });
     }
@@ -47,13 +47,13 @@ export default function ImportPage() {
 
   return (
     <main className="page">
-      <Header title="自社データで試す" />
+      <Header title="商品データを読み込む" />
       <BackButton />
 
       <p className="import-lead">
-        ひな形に商品データを記入し、このページで読み込むと、自社商品でテストプレイができます。
+        ひな形に商品データを記入し、このページで読み込むと、アプリの商品が自分のデータに入れ替わります。
         <br />
-        読み込んだデータはこの端末のブラウザ内だけで使われ、どこにも送信・保存されません。
+        読み込んだデータは<strong>この端末のブラウザ内だけに保存</strong>され、外部には一切送信されません。「デモデータに戻す」でいつでも消せます。
       </p>
 
       <p className="import-guide-link">
@@ -81,7 +81,7 @@ export default function ImportPage() {
       </label>
 
       <details className="import-advanced">
-        <summary>詳しく登録したい方(15項目CSV)</summary>
+        <summary>詳しく登録したい方(16項目CSV)</summary>
         <a
           href="./products-template.csv"
           download
@@ -94,6 +94,11 @@ export default function ImportPage() {
       {state.status === "success" && (
         <div className="import-result import-result--success" role="status">
           <p>{state.count}件の商品データを読み込みました</p>
+          {!state.saved && (
+            <p className="import-save-warning" role="alert">
+              端末への保存はできませんでした(次回開くと消えます)
+            </p>
+          )}
           <div className="import-result__actions">
             <Link to="/navi" className="big-button big-button--primary">
               困りごとから探す

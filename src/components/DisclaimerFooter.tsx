@@ -7,7 +7,7 @@ export default function DisclaimerFooter() {
   if (source === "custom") {
     return (
       <footer className="disclaimer-footer disclaimer-footer--custom" role="contentinfo">
-        読み込みデータ表示中(この端末のみ) — リロードするとデモデータに戻ります
+        読み込みデータ表示中(この端末内だけに保存・外部送信なし)
       </footer>
     );
   }

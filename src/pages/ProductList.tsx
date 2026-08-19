@@ -35,7 +35,7 @@ function inInsurance(product: Product, filter: InsuranceFilter): boolean {
 
 /** 商品リスト(ナビ結果/ジャンル共用) */
 export default function ProductList() {
-  const { products } = useProducts();
+  const { products, vocab } = useProducts();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const genre = searchParams.get("genre");
@@ -45,6 +45,7 @@ export default function ProductList() {
   const [sort, setSort] = useState<SortKey>("recommend");
   const [priceBand, setPriceBand] = useState<PriceBand>("all");
   const [insurance, setInsurance] = useState<InsuranceFilter>("all");
+  const [scene, setScene] = useState<string>("all");
   /** EmptyStateの「条件をひろげて再検索」: 困りごと条件を外し場面一致のみで再表示 */
   const [broadenRequested, setBroadenRequested] = useState(false);
 
@@ -71,7 +72,8 @@ export default function ProductList() {
     const filtered = base.items.filter(
       (s) =>
         inPriceBand(s.product.price, priceBand) &&
-        inInsurance(s.product, insurance),
+        inInsurance(s.product, insurance) &&
+        (scene === "all" || s.product.sceneTags.includes(scene)),
     );
     const sorted = [...filtered];
     if (sort === "cheap") {
@@ -88,7 +90,7 @@ export default function ProductList() {
     }
     // ナビ起点のおすすめ順は matchProducts のスコア順をそのまま使う
     return sorted;
-  }, [base, sort, priceBand, insurance, fromNavi]);
+  }, [base, sort, priceBand, insurance, scene, fromNavi]);
 
   // ナビ起点なのに回答がない(URL直打ち等) → ナビへ誘導
   if (fromNavi && !naviAnswers) {
@@ -114,7 +116,7 @@ export default function ProductList() {
       ? `${genreLabel(genre)}の商品`
       : "商品リスト";
 
-  const hasFilter = priceBand !== "all" || insurance !== "all";
+  const hasFilter = priceBand !== "all" || insurance !== "all" || scene !== "all";
 
   return (
     <main className="page">
@@ -139,6 +141,11 @@ export default function ProductList() {
         onPriceBandChange={setPriceBand}
         insurance={insurance}
         onInsuranceChange={setInsurance}
+        sceneOptions={
+          !fromNavi ? vocab.scenes.map((s) => s.label) : undefined
+        }
+        scene={scene}
+        onSceneChange={setScene}
       />
 
       <p className="list-count" role="status">
@@ -160,6 +167,7 @@ export default function ProductList() {
               ? () => {
                   setPriceBand("all");
                   setInsurance("all");
+                  setScene("all");
                 }
               : undefined
           }
