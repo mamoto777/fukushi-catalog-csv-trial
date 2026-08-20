@@ -71,8 +71,13 @@ export function saveCustomData(data: Omit<SavedData, "version">): boolean {
 }
 
 export function loadCustomData(): SavedData | null {
-  if (typeof localStorage === "undefined") return null;
-  return parseSavedData(localStorage.getItem(STORAGE_KEY));
+  try {
+    if (typeof localStorage === "undefined") return null;
+    return parseSavedData(localStorage.getItem(STORAGE_KEY));
+  } catch {
+    // 例外(プライベートモード・ストレージ無効化設定等)は握りつぶし、保存データなし扱いにする
+    return null;
+  }
 }
 
 export function clearCustomData(): void {

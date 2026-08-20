@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import BackButton from "../components/BackButton";
 import { GENRE_OPTIONS } from "../data/questions";
+import { GENRE_ICONS } from "../assets/genreIcons";
 
 /** ジャンル一覧(9ジャンル・2列グリッド) */
 export default function GenreList() {
@@ -18,7 +19,7 @@ export default function GenreList() {
               aria-label={`${g.label}の商品一覧を見る`}
             >
               <img
-                src={`./images/genre-${g.id}.svg`}
+                src={GENRE_ICONS[g.id]}
                 alt=""
                 width={80}
                 height={80}

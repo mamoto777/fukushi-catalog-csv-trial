@@ -1,5 +1,7 @@
 node_modules/
 dist/
+dist-offline/
+release-offline/
 
 # 内部ドキュメント(Publicリポジトリには含めない。ローカルには残す)
 /引継ぎメモ.md

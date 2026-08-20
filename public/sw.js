@@ -4,25 +4,18 @@
  * - fetch時はcache-first(同一オリジンGETのみ)
  * - キャッシュ名にバージョンを含め、activate時に旧キャッシュを削除
  */
-const CACHE_NAME = "fukushi-navi-v4";
+const CACHE_NAME = "fukushi-navi-v5";
 
+// ジャンルアイコン・ひな形はsrc/assets/へ移動しビルド時にバンドルへ取り込まれるため、
+// ハッシュ付きのビルド後パスをここで個別に列挙できない。プリキャッシュは静的配置ファイルのみとし、
+// バンドルJS/CSS等は下のfetchハンドラの実行時キャッシュ(取得成功時にcache.put)で
+// 初回表示時に取り込まれる(2回目以降のオフライン閲覧はそちらが担う)。
 const SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
-  "./images/genre-walking.svg",
-  "./images/genre-wheelchair.svg",
-  "./images/genre-bed.svg",
-  "./images/genre-mattress.svg",
-  "./images/genre-transfer.svg",
-  "./images/genre-bath.svg",
-  "./images/genre-toilet.svg",
-  "./images/genre-handrail.svg",
-  "./images/genre-watch.svg",
-  "./products-template.csv",
-  "./products-template-simple.xlsx",
 ];
 
 self.addEventListener("install", (event) => {

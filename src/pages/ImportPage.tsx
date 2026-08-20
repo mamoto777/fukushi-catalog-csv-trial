@@ -6,6 +6,8 @@ import BackButton from "../components/BackButton";
 import { useProducts } from "../data/ProductsContext";
 import { importCsvFile } from "../logic/csvImport";
 import { importXlsxFile } from "../logic/xlsxImport";
+import simpleTemplateUrl from "../assets/products-template-simple.xlsx?url";
+import fullTemplateUrl from "../assets/products-template.csv?url";
 
 type ImportUiState =
   | { status: "idle" }
@@ -57,13 +59,24 @@ export default function ImportPage() {
       </p>
 
       <p className="import-guide-link">
-        <a href="./guide.html" target="_blank" rel="noopener">
+        {/* オフライン版はパッケージ同梱の「使い方ガイド.html」へリンクする(docs/design-offline.md タスク2) */}
+        <a
+          href={__OFFLINE_BUILD__ ? "./使い方ガイド.html" : "./guide.html"}
+          target="_blank"
+          rel="noopener"
+        >
           はじめての方へ: 使い方ガイド(画面写真つき)
         </a>
+        {__OFFLINE_BUILD__ && (
+          <>
+            <br />
+            (アプリと同じフォルダにある「使い方ガイド.html」が開きます)
+          </>
+        )}
       </p>
 
       <a
-        href="./products-template-simple.xlsx"
+        href={simpleTemplateUrl}
         download="商品リストかんたん版.xlsx"
         className="big-button big-button--primary"
       >
@@ -83,8 +96,8 @@ export default function ImportPage() {
       <details className="import-advanced">
         <summary>詳しく登録したい方(16項目CSV)</summary>
         <a
-          href="./products-template.csv"
-          download
+          href={fullTemplateUrl}
+          download="products-template.csv"
           className="big-button big-button--secondary"
         >
           ひな形CSVをダウンロード

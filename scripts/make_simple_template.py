@@ -222,7 +222,7 @@ def main():
         build_fixture_workbook(with_scene_sheet=False).save(noscene_path)
         print(f"生成: {noscene_path}")
     else:
-        out_path = ROOT / "public" / "products-template-simple.xlsx"
+        out_path = ROOT / "src" / "assets" / "products-template-simple.xlsx"
         wb = build_workbook(genre_labels, scene_rows)
         wb.save(out_path)
         print(f"生成: {out_path}")

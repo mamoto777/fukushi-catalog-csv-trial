@@ -2,7 +2,7 @@
  * CSV→products.json変換(実データ移行用。設計書§5-11)
  *
  * 使い方: node scripts/csv2json.mjs  (npm run data:convert)
- *   入力: data/products.csv (UTF-8・ヘッダ行つき。ひな形は public/products-template.csv)
+ *   入力: data/products.csv (UTF-8・ヘッダ行つき。ひな形は src/assets/products-template.csv)
  *   出力: src/data/products.json
  *
  * CSVの列(15列):
@@ -35,7 +35,7 @@ function main() {
   } catch {
     console.error(`入力ファイルが見つかりません: ${INPUT}`);
     console.error(
-      "public/products-template.csv をコピーして data/products.csv を作成してください。",
+      "src/assets/products-template.csv をコピーして data/products.csv を作成してください。",
     );
     process.exit(1);
   }

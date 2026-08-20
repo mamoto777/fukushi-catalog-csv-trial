@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { Product } from "../types";
 import { priceLabel } from "../logic/format";
+import { GENRE_ICONS } from "../assets/genreIcons";
 
 interface Props {
   product: Product;
@@ -25,7 +26,7 @@ export default function ProductCard({ product, score }: Props) {
         aria-label={`${product.name} の詳細を見る`}
       >
         <img
-          src={product.image}
+          src={GENRE_ICONS[product.genre]}
           alt=""
           className="product-card__image"
           loading="lazy"

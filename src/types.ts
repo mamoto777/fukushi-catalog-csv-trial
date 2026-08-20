@@ -24,7 +24,7 @@ export interface Product {
   genreLabel: string; // 表示用ジャンル名
   price: number; // rental: 月額レンタル価格(10割) / purchase・none: 販売価格(税込)
   insurance: Insurance;
-  image: string; // "./images/genre-walking.svg" 等(ジャンル画像を流用)
+  image: string; // "./images/genre-walking.svg" 等。データ互換のため保持(描画には使わず、genreからsrc/assets/genreIcons.tsのGENRE_ICONSを引く)
   summary: string; // 1行特徴(リストカード用)
   description: string; // 3〜5行の説明
   specs: Record<string, string>; // { "重さ": "490g", "高さ調節": "71〜94cm" }

@@ -75,7 +75,7 @@ npm run preview    # 本番ビルドの確認(http://localhost:4173)
 
 商品データはCSVから変換して差し替えられます。
 
-1. `public/products-template.csv` をコピーして `data/products.csv` を作る
+1. `src/assets/products-template.csv` をコピーして `data/products.csv` を作る
 2. Excel等で商品を入力する(UTF-8で保存)
    - 複数の値(おすすめ・タグ類)は `|` 区切り
    - 仕様(specs)は `項目名:値|項目名:値` 形式
@@ -92,11 +92,29 @@ npm run preview    # 本番ビルドの確認(http://localhost:4173)
    エラーがあれば行番号つきで全件表示されます(その場合ファイルは更新されません)
 4. `npm run build` して動作確認 → git push で自動デプロイ
 
-商品画像はジャンル共通のイラスト(`public/images/genre-*.svg`)を使用しています。個別の商品写真に差し替える場合は `public/images/` に画像を置き、CSVのimage列対応を追加する改修が必要です(Phase 2)。
+商品画像はジャンル共通のイラスト(`src/assets/images/genre-*.svg`、`src/assets/genreIcons.ts` でジャンルidにマップ)を使用しています。個別の商品写真に差し替える場合は画像を追加し、CSVのimage列対応を追加する改修が必要です(Phase 2)。
 
 ## デプロイ(GitHub Pages)
 
 `main` ブランチへの push で `.github/workflows/deploy.yml` が走り、テスト→ビルド→GitHub Pages 公開まで自動で行われます。
+
+## オフライン版(ネット不要のパッケージ)
+
+インターネット接続なしで動く配布用パッケージを作れます。GitHub Pages版とは別のビルド系統で、Pages版のビルド・デプロイには影響しません。
+
+```bash
+npm run build:offline                    # dist-offline/index.html(JS/CSS/画像/ひな形を1ファイルに埋め込み)を生成
+python scripts/package_offline.py        # release-offline/ にzip一式を生成
+```
+
+出力される `release-offline/福祉用具えらびナビ_オフライン版.zip` の中身:
+
+- `アプリ.html` — ダブルクリックで開くだけで動く単一HTML(ネット不要)
+- `使い方ガイド.html` — 画面写真つきの使い方ガイド
+
+データの扱いはPages版と同じで、読み込んだ商品データはこの端末のブラウザ内(localStorage)にのみ保存され、外部送信は一切ありません。オフライン版はService Worker(通信の肩代わり機能)を登録しません(ネット不要のため元々不要)。
+
+設計の詳細は [docs/design-offline.md](docs/design-offline.md) を参照してください。
 
 初回のみ、GitHubリポジトリの **Settings → Pages → Source を「GitHub Actions」** に設定してください。
 

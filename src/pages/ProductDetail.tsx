@@ -5,6 +5,7 @@ import ProductCard from "../components/ProductCard";
 import { useProducts } from "../data/ProductsContext";
 import { insuranceLabel, priceLabel } from "../logic/format";
 import { similarProducts } from "../logic/similar";
+import { GENRE_ICONS } from "../assets/genreIcons";
 
 /** 商品詳細 */
 export default function ProductDetail() {
@@ -36,7 +37,7 @@ export default function ProductDetail() {
 
       <article className="product-detail">
         <img
-          src={product.image}
+          src={GENRE_ICONS[product.genre]}
           alt={`${product.genreLabel}のイメージ画像`}
           className="product-detail__image"
           width={160}
